@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FZUV</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- 音频按钮 -->
+        <button class="audio-btn" id="audioBtn">🔇</button>
+
+        <div class="box">
+            <!-- 主页（无向上箭头） -->
+            <div class="screen active" id="screen-home">
+                <div class="arrow-placeholder"></div>
+                <div class="screen-content">
+                    <h1>FZUV</h1>
+                    <div class="nav-links">
+                        <div class="nav-link" data-target="screen-work">1. 工作</div>
+                        <div class="nav-link" data-target="screen-achievement">2. 成就</div>
+                        <div class="nav-link" data-target="screen-our-advantages">3. 我们的优势</div>
+                        <div class="nav-link" data-target="screen-join">4. 加入我们</div>
+                    </div>
+                </div>
+                <img class="arrow arrow-down" src="./img/icon/downarrow.png" alt="下一页">
+            </div>
+
+            <!-- 工作页面 -->
+            <div class="screen" id="screen-work">
+                <img class="arrow arrow-up" src="./img/icon/uparrow.png" alt="上一页">
+                <div class="screen-content">
+                    <h2>工作</h2>
+                </div>
+                <img class="arrow arrow-down" src="./img/icon/downarrow.png" alt="下一页">
+            </div>
+
+            <!-- 成就页面 -->
+            <div class="screen" id="screen-achievement">
+                <img class="arrow arrow-up" src="./img/icon/uparrow.png" alt="上一页">
+                <div class="screen-content">
+                    <h2>成就</h2>
+                </div>
+                <img class="arrow arrow-down" src="./img/icon/downarrow.png" alt="下一页">
+            </div>
+
+            <!-- 我们的优势页面 -->
+            <div class="screen" id="screen-our-advantages">
+                <img class="arrow arrow-up" src="./img/icon/uparrow.png" alt="上一页">
+                <div class="screen-content">
+                    <h2>我们的优势</h2>
+                </div>
+                <img class="arrow arrow-down" src="./img/icon/downarrow.png" alt="下一页">
+            </div>
+
+            <!-- 加入我们页面（无向下箭头） -->
+            <div class="screen" id="screen-join">
+                <img class="arrow arrow-up" src="./img/icon/uparrow.png" alt="上一页">
+                <div class="screen-content">
+                    <h2>加入我们</h2>
+                </div>
+                <div class="arrow-placeholder"></div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="bgMusic" src="./music/testmusic.mp3" loop>
+        <script src="./js/script.js"></script>
+</body>
+
+</html>
