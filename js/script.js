@@ -1,4 +1,4 @@
-alert("v0.22202 only preview   最后发布时间2.22 2:16");
+alert("v0.22202 preview only\n最后发布时间2.22 2:16");
 console.log("v0.22202 only preview   最后发布时间2.22 2:16");
 // ==================== 全局禁止文字选中/拖动（防蓝框） ====================
 document.addEventListener('selectstart', (e) => e.preventDefault());
