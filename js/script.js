@@ -1,3 +1,4 @@
+console.log("v0.22118 , only preview")
 // ==================== 工作页面内切换+交互逻辑 ====================
 const workPage1 = document.getElementById('work-page1');
 const workPage2 = document.getElementById('work-page2');
@@ -328,4 +329,5 @@ box.addEventListener('wheel', (e) => {
 window.addEventListener('load', () => {
     initAudio();
     initOriginalHeights(); // 初始化原始绳子长度
+
 });
