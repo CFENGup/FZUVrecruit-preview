@@ -100,6 +100,8 @@
                         <div class="bottom-inner-box red-border">
                             <!-- 新增bottom按钮 -->
                             <button class="bottom-back-btn">返回</button>
+                            <p>样式待定。官方微信专题配图，校园新闻现场纪实，用镜头捕捉校园里的日常瞬间与动人细节，以相机定格福大的晨昏四季与青春风采，聚焦校园热点事件，记录真实鲜活的校园生活，用一张张照片留存属于福大的温暖与美好。
+                            </p>
                         </div>
                     </div>
 
@@ -107,6 +109,8 @@
                     <div class="work-page work-bottom-page" id="work-page4">
                         <div class="bottom-inner-box blue-border">
                             <button class="bottom-back-btn">返回</button>
+                            <p>样式待定。挖掘创意灵感，紧跟校园热点与时代潮流，结合学校宣传重点进行视频选题与创意策划。同时为视频配套撰写生动鲜活、贴合受众的文案，用新颖视角与优质内容，让校园宣传更具吸引力与感染力。
+                            </p>
                         </div>
                     </div>
 
@@ -114,6 +118,8 @@
                     <div class="work-page work-bottom-page" id="work-page5">
                         <div class="bottom-inner-box green-border">
                             <button class="bottom-back-btn">返回</button>
+                            <p>样式待定。围绕拍摄主题，进行视频拍摄和剪辑工作，将校园风景、师生风采、重要活动与校园故事转化为生动鲜活的视频作品，用画面传递福大温度，用影像讲好属于福大的精彩故事，展现学校的精神风貌与独特魅力。
+                            </p>
                         </div>
                     </div>
 
@@ -121,6 +127,7 @@
                     <div class="work-page work-bottom-page" id="work-page6">
                         <div class="bottom-inner-box purple-border">
                             <button class="bottom-back-btn">返回</button>
+                            <p>样式待定。筹备部门节日礼物、组织校园外拍活动、策划部门团建、统计德育稿费。配合各类拍摄任务，参与出镜工作，充分展示福大学子风貌。</p>
                         </div>
                     </div>
                 </div>
@@ -132,9 +139,36 @@
             <div class="screen" id="screen-achievement">
                 <img class="arrow arrow-up" src="./img/icon/uparrow.png" alt="上一页">
                 <div class="screen-content">
-                    <h2>成就</h2>
+                    <div class="scratch-card-discription">
+                        <h1>这是个刮刮乐</h1>
+                        <p>请用手指或鼠标划开(此处指示待定)</p>
+                    </div>
+                    <!-- 刮刮乐总容器（2×2布局） -->
+                    <div class="scratch-cards-container">
+                        <!-- 第一个刮刮乐：摄影展 -->
+                        <div class="scratch-card">
+                            <div class="scratch-card-text">摄影展</div>
+                            <canvas class="scratch-card-canvas" width="300" height="150"></canvas>
+                        </div>
+                        <!-- 第二个刮刮乐：运动会 -->
+                        <div class="scratch-card">
+                            <div class="scratch-card-text">运动会</div>
+                            <canvas class="scratch-card-canvas" width="300" height="150"></canvas>
+                        </div>
+                        <!-- 第三个刮刮乐：新年晚会 -->
+                        <div class="scratch-card">
+                            <div class="scratch-card-text">新年晚会</div>
+                            <canvas class="scratch-card-canvas" width="300" height="150"></canvas>
+                        </div>
+                        <!-- 第四个刮刮乐：微电影 -->
+                        <div class="scratch-card">
+                            <div class="scratch-card-text">微电影</div>
+                            <canvas class="scratch-card-canvas" width="300" height="150"></canvas>
+                        </div>
+                    </div>
+                    </d>
+                    <img class="arrow arrow-down" src="./img/icon/downarrow.png" alt="下一页">
                 </div>
-                <img class="arrow arrow-down" src="./img/icon/downarrow.png" alt="下一页">
             </div>
 
             <!-- 我们的优势页面 -->
@@ -155,10 +189,119 @@
                 <div class="arrow-placeholder"></div>
             </div>
         </div>
-    </div>
 
-    <audio id="bgMusic" src="./music/testmusic.mp3" loop></audio>
-    <script src="./js/script.js"></script>
+
+
+        <!-- 全屏弹出层（运动会专属） -->
+        <div class="popup-overlay" id="sportsPopup">
+            <button class="popup-close-btn" id="popupCloseBtn">×</button>
+            <div class="popup-content">
+                <!-- 图片轮播容器 -->
+                <div class="carousel-container">
+                    <div class="popup-title">
+                        <p>运动会</p>
+                    </div>
+                    <!-- 轮播图片外层（需设relative，用于定位指示器） -->
+                    <div class="carousel-wrapper">
+                        <div class="carousel-slides photox3">
+
+                            <img src="./img/photo/yundonghui1.jpg" alt="运动会1" class="carousel-slide">
+                            <img src="./img/photo/yundonghui2.jpg" alt="运动会2" class="carousel-slide">
+                            <img src="./img/photo/yundonghui3.jpg" alt="运动会3" class="carousel-slide">
+                        </div>
+                        <div class="carousel-dots">
+                            <span class="carousel-dot active"></span>
+                            <span class="carousel-dot"></span>
+                            <span class="carousel-dot"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 下部占位文本 -->
+                <div class="popup-text">
+                    <p>每年十一月初，视传的小伙伴们都会用自己手中的相机记录校运会上运动员的飒爽英姿和精彩的瞬间。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 摄影展弹出层 -->
+        <div class="popup-overlay" id="photoExhibitionPopup">
+            <button class="popup-close-btn" id="photoExhibitionCloseBtn">×</button>
+            <div class="popup-content">
+                <div class="popup-title">
+                    <p>摄影展</p>
+                </div>
+                <div class="carousel-container">
+                    <div class="carousel-wrapper">
+                        <div class="carousel-slides photox2">
+                            <!-- 三张占位图片（请确保路径存在，或替换为实际图片） -->
+                            <img src="./img/photo/sheyinzhan1.jpg" alt="摄影展1" class="carousel-slide">
+                            <img src="./img/photo/sheyinzhan2.jpg" alt="摄影展2" class="carousel-slide">
+
+                        </div>
+                        <div class="carousel-dots">
+                            <span class="carousel-dot active"></span>
+                            <span class="carousel-dot"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="popup-text">
+                    <p>十二月，视传承办摄影展，原色、告白、共振...每年不同的主题，邀请福大同学、老师、校友等等一起参与，一起走进FZUers镜头下的浪漫瞬间。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新年晚会弹出层 -->
+        <div class="popup-overlay" id="newYearGalaPopup">
+            <button class="popup-close-btn" id="newYearGalaCloseBtn">×</button>
+            <div class="popup-content">
+                <div class="popup-title">
+                    <p>新年晚会</p>
+                </div>
+                <div class="carousel-container">
+                    <div class="carousel-wrapper">
+                        <div class="carousel-slides photox1">
+                            <img src="./img/photo/xinnianwanhui1.jpg" alt="新年晚会1" class="carousel-slide">
+                        </div>
+                        <div class="carousel-dots">
+                            <span class="carousel-dot active"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="popup-text">
+                    <p>每到年末岁尾，视传的同学用相机定格新年晚会上表演者的耀眼风采，留存一年最后与新年最初的瞬间。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 微电影弹出层 -->
+        <div class="popup-overlay" id="microFilmPopup">
+            <button class="popup-close-btn" id="microFilmCloseBtn">×</button>
+            <div class="popup-content">
+                <div class="popup-title">
+                    <p>微电影</p>
+                </div>
+                <div class="carousel-container">
+                    <div class="carousel-wrapper">
+                        <div class="carousel-slides photox2">
+                            <img src="./img/photo/weidianying1.jpg" alt="微电影1" class="carousel-slide">
+                            <img src="./img/photo/weidianying2.jpg" alt="微电影2" class="carousel-slide">
+                        </div>
+                        <div class="carousel-dots">
+                            <span class="carousel-dot active"></span>
+                            <span class="carousel-dot"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="popup-text">
+                    <p>每年毕业季，视传全体将会进行毕业季微电影的拍摄。从一个灵感、一个创意，到剧本、分镜再到选角、妆造，最终落地拍摄全部由视传负责，为每一位即将毕业的福大学子送去最真挚的祝福。</p>
+                </div>
+            </div>
+        </div>
+
+
+
+        <audio id="bgMusic" src="./music/testmusic.mp3" loop></audio>
+        <script src="./js/script.js"></script>
 </body>
 
 </html>

@@ -1,5 +1,10 @@
-console.log("v0.22118 , only preview")
-// ==================== 工作页面内切换+交互逻辑 ====================
+
+// ==================== 全局禁止文字选中/拖动（防蓝框） ====================
+document.addEventListener('selectstart', (e) => e.preventDefault());
+document.addEventListener('dragstart', (e) => e.preventDefault());
+window.addEventListener('mousedown', (e) => { if (e.button === 0) e.preventDefault(); });
+
+// ==================== 全局变量与核心元素获取 ====================
 const workPage1 = document.getElementById('work-page1');
 const workPage2 = document.getElementById('work-page2');
 const workPage3 = document.getElementById('work-page3');
@@ -8,35 +13,52 @@ const workPage5 = document.getElementById('work-page5');
 const workPage6 = document.getElementById('work-page6');
 const workStartBtn = document.getElementById('workStartBtn');
 
-// 获取所有组元素
 const workGroups = document.querySelectorAll('.work-group');
-// 获取所有悬挂项、绳子、图标、文本
 const hangingItems = document.querySelectorAll('.hanging-item');
 const hangingLines = document.querySelectorAll('.hanging-line');
 const hangingIcons = document.querySelectorAll('.hanging-icon');
 const groupTexts = document.querySelectorAll('.group-text');
 
-// 存储原始绳子长度（初始化时保存）
-let originalLineHeights = [];
+const screens = document.querySelectorAll('.screen');
+const navLinks = document.querySelectorAll('.nav-link');
+const arrows = document.querySelectorAll('.arrow');
+const progressDots = document.querySelectorAll('.progress-dot');
 
-// 初始化原始长度
+const audioBtn = document.getElementById('audioBtn');
+const bgMusic = document.getElementById('bgMusic');
+
+let originalLineHeights = [];
+let currentIndex = 0;
+let startY = 0;
+let isSwiping = false;
+let isScrolling = false;
+let isPlaying = false;
+let audioExists = false;
+
+// ==================== 工作页面摆动与切换逻辑 ====================
 function initOriginalHeights() {
-    hangingItems.forEach(item => {
-        originalLineHeights.push(item.style.getPropertyValue('--line-height'));
+    hangingItems.forEach(item => originalLineHeights.push(item.style.getPropertyValue('--line-height')));
+}
+
+function initSwingAnimations() {
+    const swingConfigs = [
+        { anim: 'swing-left', duration: '3.2s', delay: '0.1s' },
+        { anim: 'swing-right', duration: '2.8s', delay: '0.2s' },
+        { anim: 'swing-slow', duration: '3.5s', delay: '0.05s' },
+        { anim: 'swing-fast', duration: '2.5s', delay: '0.15s' }
+    ];
+    hangingItems.forEach((item, index) => {
+        const config = swingConfigs[index] || { anim: 'swing', duration: '3s', delay: '0s' };
+        item.style.animation = `${config.anim} ${config.duration} infinite ease-in-out`;
+        item.style.animationDelay = config.delay;
+        item.classList.remove('stop-swing');
     });
 }
 
-// 重置所有组的样式（初始状态）
 function resetAllGroups() {
-    // 恢复摇晃动画
-    hangingItems.forEach(item => {
-        item.classList.remove('stop-swing');
-        item.style.transform = 'rotate(0deg)';
-    });
-    // 恢复绳子长度、图标、文本样式
+    initSwingAnimations();
     hangingLines.forEach((line, index) => {
         line.classList.remove('shrink');
-        // 强制恢复原始长度
         line.style.height = originalLineHeights[index];
     });
     hangingIcons.forEach(icon => {
@@ -50,25 +72,19 @@ function resetAllGroups() {
     });
 }
 
-// 收缩非选中的组
 function shrinkOtherGroups(activeIndex) {
-    // 停止所有摇晃动画
     hangingItems.forEach(item => {
         item.classList.add('stop-swing');
+        item.style.animation = 'none';
+        item.style.transform = 'rotate(0deg)';
     });
-
-    // 遍历所有组，收缩非选中的
     workGroups.forEach((group, index) => {
         if (index !== activeIndex) {
-            // 绳子缩到20px
             hangingLines[index].classList.add('shrink');
             hangingLines[index].style.height = '20px';
-            // 图标收缩
             hangingIcons[index].classList.add('shrink');
-            // 文本收缩
             groupTexts[index].classList.add('shrink');
         } else {
-            // 选中的组：恢复原始长度和样式
             hangingLines[index].classList.remove('shrink');
             hangingLines[index].style.height = originalLineHeights[index];
             hangingIcons[index].classList.remove('shrink');
@@ -77,177 +93,39 @@ function shrinkOtherGroups(activeIndex) {
     });
 }
 
-// 切换到上下布局
-function switchToWorkTopBottom(bottomPage, activeGroupIndex) {
-    // 先隐藏所有页面
-    workPage1.classList.remove('active');
-    workPage2.classList.remove('active');
-    workPage3.classList.remove('active');
-    workPage4.classList.remove('active');
-    workPage5.classList.remove('active');
-    workPage6.classList.remove('active');
-
-    // 显示page2（上方）
+function switchToWorkTopBottom(bottomPage, activeIndex) {
+    [workPage1, workPage2, workPage3, workPage4, workPage5, workPage6].forEach(page => page.classList.remove('active'));
     workPage2.classList.add('active');
-
-    // 显示指定的下方页面
-    if (bottomPage) {
-        bottomPage.classList.add('active');
-    }
-
-    // 如果指定了选中的组，收缩其他组
-    if (activeGroupIndex !== undefined) {
-        shrinkOtherGroups(activeGroupIndex);
-    } else {
-        // 否则重置所有组
-        resetAllGroups();
-    }
+    if (bottomPage) bottomPage.classList.add('active');
+    activeIndex !== undefined ? shrinkOtherGroups(activeIndex) : resetAllGroups();
 }
 
-// 点击“开始”按钮：切换到page2，重置所有组
-if (workStartBtn) {
-    workStartBtn.addEventListener('click', () => {
-        resetAllGroups();
-        switchToWorkTopBottom(null);
-    });
-}
-
-// 监听每个work-group的点击事件
-if (workGroups.length > 0) {
-    workGroups.forEach((group, index) => {
-        group.addEventListener('click', (e) => {
-            e.stopPropagation();
-
-            // 根据组索引获取对应的下方页面
-            let targetBottomPage = null;
-            switch (index) {
-                case 0: // 照片组
-                    targetBottomPage = workPage3;
-                    break;
-                case 1: // 策划组
-                    targetBottomPage = workPage4;
-                    break;
-                case 2: // 摄制组
-                    targetBottomPage = workPage5;
-                    break;
-                case 3: // 综管出镜组
-                    targetBottomPage = workPage6;
-                    break;
-            }
-
-            // 切换页面并收缩其他组
-            switchToWorkTopBottom(targetBottomPage, index);
-        });
-    });
-}
-
-// ========== 核心修复：返回按钮点击事件 ==========
-const backBtns = document.querySelectorAll('.bottom-back-btn');
-backBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        // 1. 强制隐藏所有下方页面（page3/4/5/6）
-        workPage3.classList.remove('active');
-        workPage4.classList.remove('active');
-        workPage5.classList.remove('active');
-        workPage6.classList.remove('active');
-
-        // 2. 确保page2保持显示
-        workPage2.classList.add('active');
-
-        // 3. 强制重置所有组样式（绳子伸出来）
-        resetAllGroups();
-
-        // 4. 强制恢复摇晃动画（解决动画不生效问题）
-        hangingItems.forEach((item, index) => {
-            // 先清除动画，再重新添加
-            item.style.animation = 'none';
-            item.offsetHeight; // 触发重绘
-            item.style.animation = 'swing 3s infinite ease-in-out';
-            item.style.animationDelay = `${index * 0.5}s`; // 恢复延迟
-        });
-    });
-});
-
-// ==================== 原有页面切换+音频逻辑 ====================
-const screens = document.querySelectorAll('.screen');
-const navLinks = document.querySelectorAll('.nav-link');
-const arrows = document.querySelectorAll('.arrow');
-const progressDots = document.querySelectorAll('.progress-dot');
-let currentIndex = 0;
-let startY = 0;
-let isSwiping = false;
-let isScrolling = false;
-
-// 音频相关
-const audioBtn = document.getElementById('audioBtn');
-const bgMusic = document.getElementById('bgMusic');
-let isPlaying = false;
-let audioExists = false;
-
-// 检查音频是否存在
+// ==================== 音频逻辑 ====================
 function checkAudioExists() {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
         const xhr = new XMLHttpRequest();
         xhr.open('HEAD', './music/testmusic.mp3', true);
-        xhr.onload = function () {
-            resolve(xhr.status >= 200 && xhr.status < 300);
-        };
-        xhr.onerror = function () {
-            resolve(false);
-        };
+        xhr.onload = () => resolve(xhr.status >= 200 && xhr.status < 300);
+        xhr.onerror = () => resolve(false);
         xhr.send();
     });
 }
 
-// 初始化音频
 async function initAudio() {
     audioExists = await checkAudioExists();
-    if (!audioExists) {
-        console.log('音频文件不存在');
-        updateAudioBtn();
-        return;
-    }
-
+    if (!audioExists) { updateAudioBtn(); return; }
     try {
         await bgMusic.play();
         isPlaying = true;
-    } catch (e) {
-        isPlaying = false;
-    }
+    } catch (e) { isPlaying = false; }
     updateAudioBtn();
 }
 
-// 更新音频按钮状态
-function updateAudioBtn() {
-    audioBtn.textContent = audioExists && isPlaying ? '🔊' : '🔇';
-}
+function updateAudioBtn() { if (audioBtn) audioBtn.textContent = audioExists && isPlaying ? '🔊' : '🔇'; }
 
-// 音频按钮点击事件
-audioBtn.addEventListener('click', async () => {
-    if (!audioExists) return;
+// ==================== 页面切换逻辑 ====================
+function updateProgress(index) { progressDots.forEach((dot, i) => dot.classList.toggle('active', i === index)); }
 
-    if (isPlaying) {
-        bgMusic.pause();
-        isPlaying = false;
-    } else {
-        try {
-            await bgMusic.play();
-            isPlaying = true;
-        } catch (e) {
-            console.log('音频播放失败');
-        }
-    }
-    updateAudioBtn();
-});
-
-// 更新进度条
-function updateProgress(index) {
-    progressDots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === index);
-    });
-}
-
-// 页面切换函数
 function showScreen(index, direction = 'next') {
     screens.forEach((screen, i) => {
         screen.classList.remove('active', 'prev');
@@ -258,76 +136,492 @@ function showScreen(index, direction = 'next') {
     updateProgress(index);
 }
 
-// 上下页切换
-function nextScreen() {
-    if (currentIndex < screens.length - 1) showScreen(currentIndex + 1, 'next');
-}
+function nextScreen() { if (currentIndex < screens.length - 1) showScreen(currentIndex + 1, 'next'); }
+function prevScreen() { if (currentIndex > 0) showScreen(currentIndex - 1, 'prev'); }
 
-function prevScreen() {
-    if (currentIndex > 0) showScreen(currentIndex - 1, 'prev');
-}
+// ==================== 刮刮乐效果逻辑（带滑动检测） ====================
+function initSingleScratchCard(scratchCard) {
+    const canvas = scratchCard.querySelector('.scratch-card-canvas');
+    const textEl = scratchCard.querySelector('.scratch-card-text');
+    if (!canvas || !textEl) return;
 
-// 点击导航切换
-navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-        const targetId = e.target.dataset.target;
-        const targetIndex = Array.from(screens).findIndex(s => s.id === targetId);
-        if (targetIndex !== -1) {
-            showScreen(targetIndex, targetIndex > currentIndex ? 'next' : 'prev');
+    const ctx = canvas.getContext('2d');
+    const containerWidth = scratchCard.offsetWidth;
+    const containerHeight = scratchCard.offsetHeight;
+    canvas.width = containerWidth;
+    canvas.height = containerHeight;
+    canvas.style.width = `${containerWidth}px`;
+    canvas.style.height = `${containerHeight}px`;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#999999';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    let isScratching = false;
+    let hasMoved = false;
+    let startX, startY;
+
+    function drawScratch(x, y) {
+        if (x < 0 || x > canvas.width || y < 0 || y > canvas.height) return;
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.beginPath();
+        ctx.arc(x, y, 20, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalCompositeOperation = 'source-over';
+    }
+
+    // PC端
+    canvas.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        isScratching = true;
+        hasMoved = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        const rect = canvas.getBoundingClientRect();
+        drawScratch(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isScratching) return;
+        if (!hasMoved && (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5)) hasMoved = true;
+        const rect = canvas.getBoundingClientRect();
+        drawScratch(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isScratching) {
+            if (hasMoved) {
+                canvas.dataset.ignoreClick = 'true';
+                setTimeout(() => delete canvas.dataset.ignoreClick, 300);
+            }
+            isScratching = false;
         }
     });
-});
 
-// 点击箭头切换
-arrows.forEach(arrow => {
-    arrow.addEventListener('click', () => {
-        arrow.classList.contains('arrow-up') ? prevScreen() : nextScreen();
+    // 移动端
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        isScratching = true;
+        hasMoved = false;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        const rect = canvas.getBoundingClientRect();
+        drawScratch(touch.clientX - rect.left, touch.clientY - rect.top);
     });
-});
 
-// 点击进度点跳转
-progressDots.forEach(dot => {
-    dot.addEventListener('click', () => {
+    document.addEventListener('touchmove', (e) => {
+        if (!isScratching) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        if (!hasMoved && (Math.abs(touch.clientX - startX) > 5 || Math.abs(touch.clientY - startY) > 5)) hasMoved = true;
+        const rect = canvas.getBoundingClientRect();
+        drawScratch(touch.clientX - rect.left, touch.clientY - rect.top);
+    });
+
+    document.addEventListener('touchend', () => {
+        if (isScratching) {
+            if (hasMoved) {
+                canvas.dataset.ignoreClick = 'true';
+                setTimeout(() => delete canvas.dataset.ignoreClick, 300);
+            }
+            isScratching = false;
+        }
+    });
+}
+
+function initScratchCard() {
+    const allScratchCards = document.querySelectorAll('.scratch-card');
+    if (!allScratchCards.length) return;
+    allScratchCards.forEach(card => initSingleScratchCard(card));
+    window.addEventListener('resize', () => allScratchCards.forEach(card => initSingleScratchCard(card)));
+}
+
+// ==================== 事件绑定 ====================
+function bindEvents() {
+    if (workStartBtn) workStartBtn.addEventListener('click', () => { resetAllGroups(); switchToWorkTopBottom(null); });
+
+    const backBtns = document.querySelectorAll('.bottom-back-btn');
+    backBtns.forEach(btn => btn.addEventListener('click', () => {
+        [workPage3, workPage4, workPage5, workPage6].forEach(p => p.classList.remove('active'));
+        workPage2.classList.add('active');
+        resetAllGroups();
+    }));
+
+    if (audioBtn) audioBtn.addEventListener('click', async () => {
+        if (!audioExists) return;
+        if (isPlaying) { bgMusic.pause(); isPlaying = false; }
+        else { try { await bgMusic.play(); isPlaying = true; } catch (e) { } }
+        updateAudioBtn();
+    });
+
+    navLinks.forEach(link => link.addEventListener('click', (e) => {
+        const targetId = e.target.dataset.target;
+        const targetIndex = Array.from(screens).findIndex(s => s.id === targetId);
+        if (targetIndex !== -1) showScreen(targetIndex, targetIndex > currentIndex ? 'next' : 'prev');
+    }));
+
+    arrows.forEach(arrow => arrow.addEventListener('click', () => arrow.classList.contains('arrow-up') ? prevScreen() : nextScreen()));
+
+    progressDots.forEach(dot => dot.addEventListener('click', () => {
         const targetIndex = parseInt(dot.dataset.index);
         showScreen(targetIndex, targetIndex > currentIndex ? 'next' : 'prev');
-    });
-});
+    }));
 
-// 滑动切换（移动端）
-const box = document.querySelector('.box');
-box.addEventListener('touchstart', (e) => {
-    startY = e.touches[0].clientY;
-    isSwiping = true;
-});
-
-box.addEventListener('touchmove', (e) => {
-    if (isSwiping) e.preventDefault();
-}, { passive: false });
-
-box.addEventListener('touchend', (e) => {
-    if (!isSwiping) return;
-    const endY = e.changedTouches[0].clientY;
-    const deltaY = startY - endY;
-
-    if (Math.abs(deltaY) > 50) {
-        deltaY > 0 ? nextScreen() : prevScreen();
+    const box = document.querySelector('.box');
+    if (box) {
+        box.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; isSwiping = true; });
+        box.addEventListener('touchmove', (e) => { if (isSwiping) e.preventDefault(); }, { passive: false });
+        box.addEventListener('touchend', (e) => {
+            if (!isSwiping) return;
+            const endY = e.changedTouches[0].clientY;
+            const deltaY = startY - endY;
+            if (Math.abs(deltaY) > 50) deltaY > 0 ? nextScreen() : prevScreen();
+            isSwiping = false;
+        });
+        box.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (isScrolling) return;
+            isScrolling = true;
+            e.deltaY > 0 ? nextScreen() : prevScreen();
+            setTimeout(() => isScrolling = false, 600);
+        }, { passive: false });
     }
-    isSwiping = false;
+
+    const screenWork = document.getElementById('screen-work');
+    if (screenWork) screenWork.addEventListener('click', (e) => {
+        const workGroup = e.target.closest('.work-group');
+        if (workGroup) {
+            e.stopPropagation();
+            const groupIndex = Array.from(workGroups).indexOf(workGroup);
+            let targetBottomPage = null;
+            switch (groupIndex) {
+                case 0: targetBottomPage = workPage3; break;
+                case 1: targetBottomPage = workPage4; break;
+                case 2: targetBottomPage = workPage5; break;
+                case 3: targetBottomPage = workPage6; break;
+            }
+            switchToWorkTopBottom(targetBottomPage, groupIndex);
+            return;
+        }
+    });
+}
+
+// ==================== 页面初始化 ====================
+window.addEventListener('DOMContentLoaded', async () => {
+    initOriginalHeights();
+    bindEvents();
+    await initAudio();
+    setTimeout(initScratchCard, 100);
+    showScreen(0);
+    if (workPage2?.classList.contains('active')) initSwingAnimations();
 });
 
-// 滚轮切换（PC端）
-box.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    if (isScrolling) return;
+window.addEventListener('resize', () => {
+    initScratchCard();
+    if (workPage2?.classList.contains('active')) initSwingAnimations();
+});
 
-    isScrolling = true;
-    e.deltaY > 0 ? nextScreen() : prevScreen();
-    setTimeout(() => isScrolling = false, 600);
-}, { passive: false });
+// ==================== 四个弹出层逻辑（统一为立即执行函数，监听canvas点击） ====================
 
-// 页面加载完成初始化
+// 运动会
+(function () {
+    const popup = document.getElementById('sportsPopup');
+    const closeBtn = document.getElementById('popupCloseBtn');
+    const scratchCard = Array.from(document.querySelectorAll('.scratch-card')).find(card =>
+        card.querySelector('.scratch-card-text').textContent === '运动会'
+    );
+    if (!popup || !closeBtn || !scratchCard) return;
+    const canvas = scratchCard.querySelector('.scratch-card-canvas');
+    if (!canvas) return;
+
+    function showPopup() { popup.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function hidePopup() { popup.classList.remove('active'); document.body.style.overflow = 'auto'; }
+
+    canvas.addEventListener('click', (e) => {
+        if (canvas.dataset.ignoreClick) {
+            delete canvas.dataset.ignoreClick;
+            e.stopPropagation();
+            return;
+        }
+        e.stopPropagation();
+        showPopup();
+    });
+
+    closeBtn.addEventListener('click', hidePopup);
+    popup.addEventListener('click', (e) => { if (e.target === popup) hidePopup(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && popup.classList.contains('active')) hidePopup(); });
+})();
+
+// 摄影展
+(function () {
+    const popup = document.getElementById('photoExhibitionPopup');
+    const closeBtn = document.getElementById('photoExhibitionCloseBtn');
+    const scratchCard = Array.from(document.querySelectorAll('.scratch-card')).find(card =>
+        card.querySelector('.scratch-card-text').textContent === '摄影展'
+    );
+    if (!popup || !closeBtn || !scratchCard) return;
+    const canvas = scratchCard.querySelector('.scratch-card-canvas');
+    if (!canvas) return;
+
+    function showPopup() { popup.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function hidePopup() { popup.classList.remove('active'); document.body.style.overflow = 'auto'; }
+
+    canvas.addEventListener('click', (e) => {
+        if (canvas.dataset.ignoreClick) {
+            delete canvas.dataset.ignoreClick;
+            e.stopPropagation();
+            return;
+        }
+        e.stopPropagation();
+        showPopup();
+    });
+
+    closeBtn.addEventListener('click', hidePopup);
+    popup.addEventListener('click', (e) => { if (e.target === popup) hidePopup(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && popup.classList.contains('active')) hidePopup(); });
+})();
+
+// 新年晚会
+(function () {
+    const popup = document.getElementById('newYearGalaPopup');
+    const closeBtn = document.getElementById('newYearGalaCloseBtn');
+    const scratchCard = Array.from(document.querySelectorAll('.scratch-card')).find(card =>
+        card.querySelector('.scratch-card-text').textContent === '新年晚会'
+    );
+    if (!popup || !closeBtn || !scratchCard) return;
+    const canvas = scratchCard.querySelector('.scratch-card-canvas');
+    if (!canvas) return;
+
+    function showPopup() { popup.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function hidePopup() { popup.classList.remove('active'); document.body.style.overflow = 'auto'; }
+
+    canvas.addEventListener('click', (e) => {
+        if (canvas.dataset.ignoreClick) {
+            delete canvas.dataset.ignoreClick;
+            e.stopPropagation();
+            return;
+        }
+        e.stopPropagation();
+        showPopup();
+    });
+
+    closeBtn.addEventListener('click', hidePopup);
+    popup.addEventListener('click', (e) => { if (e.target === popup) hidePopup(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && popup.classList.contains('active')) hidePopup(); });
+})();
+
+// 微电影
+(function () {
+    const popup = document.getElementById('microFilmPopup');
+    const closeBtn = document.getElementById('microFilmCloseBtn');
+    const scratchCard = Array.from(document.querySelectorAll('.scratch-card')).find(card =>
+        card.querySelector('.scratch-card-text').textContent === '微电影'
+    );
+    if (!popup || !closeBtn || !scratchCard) return;
+    const canvas = scratchCard.querySelector('.scratch-card-canvas');
+    if (!canvas) return;
+
+    function showPopup() { popup.classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function hidePopup() { popup.classList.remove('active'); document.body.style.overflow = 'auto'; }
+
+    canvas.addEventListener('click', (e) => {
+        if (canvas.dataset.ignoreClick) {
+            delete canvas.dataset.ignoreClick;
+            e.stopPropagation();
+            return;
+        }
+        e.stopPropagation();
+        showPopup();
+    });
+
+    closeBtn.addEventListener('click', hidePopup);
+    popup.addEventListener('click', (e) => { if (e.target === popup) hidePopup(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && popup.classList.contains('active')) hidePopup(); });
+})();
+
+// ==================== 轮播初始化 ====================
 window.addEventListener('load', () => {
-    initAudio();
-    initOriginalHeights(); // 初始化原始绳子长度
-
+    setTimeout(() => {
+        initSportsCarousel();
+        initPhotoExhibitionCarousel();
+        initNewYearGalaCarousel();
+        initMicroFilmCarousel();
+    }, 300);
 });
+
+function initSportsCarousel() {
+    const popup = document.getElementById('sportsPopup');
+    if (!popup) return;
+    const carouselSlides = popup.querySelector('.carousel-slides');
+    const carouselDots = popup.querySelectorAll('.carousel-dot');
+    if (!carouselSlides || carouselDots.length === 0) return;
+
+    let currentSlide = 0;
+    const slideCount = 3;
+    const intervalTime = 1000;
+    let interval = null;
+
+    function updateCarousel() {
+        const offset = -currentSlide * (100 / slideCount);
+        carouselSlides.style.transform = `translateX(${offset}%)`;
+        carouselDots.forEach((dot, i) => dot.classList.toggle('active', i === currentSlide));
+    }
+    function nextSlide() { currentSlide = (currentSlide + 1) % slideCount; updateCarousel(); }
+    function startCarousel() { currentSlide = 0; updateCarousel(); interval = setInterval(nextSlide, intervalTime); }
+    function stopCarousel() { clearInterval(interval); currentSlide = 0; updateCarousel(); }
+
+    const canvas = popup.previousElementSibling?.querySelector('.scratch-card-canvas'); // 不精确，改用根据文本查找
+    const scratchCard = Array.from(document.querySelectorAll('.scratch-card')).find(card =>
+        card.querySelector('.scratch-card-text').textContent === '运动会'
+    );
+    if (scratchCard) {
+        const canvas = scratchCard.querySelector('.scratch-card-canvas');
+        if (canvas) {
+            canvas.addEventListener('click', () => setTimeout(startCarousel, 200));
+        }
+    }
+
+    const closeBtn = document.getElementById('popupCloseBtn');
+    if (closeBtn) closeBtn.addEventListener('click', stopCarousel);
+    popup.addEventListener('click', (e) => { if (e.target === popup) stopCarousel(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && popup.classList.contains('active')) stopCarousel(); });
+    carouselDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            currentSlide = index;
+            updateCarousel();
+            clearInterval(interval);
+            interval = setInterval(nextSlide, intervalTime);
+        });
+    });
+}
+
+function initPhotoExhibitionCarousel() {
+    const popup = document.getElementById('photoExhibitionPopup');
+    if (!popup) return;
+    const carouselSlides = popup.querySelector('.carousel-slides');
+    const carouselDots = popup.querySelectorAll('.carousel-dot');
+    if (!carouselSlides || carouselDots.length === 0) return;
+
+    let currentSlide = 0;
+    const slideCount = 2;
+    const intervalTime = 1000;
+    let interval = null;
+
+    function updateCarousel() {
+        const offset = -currentSlide * (100 / slideCount);
+        carouselSlides.style.transform = `translateX(${offset}%)`;
+        carouselDots.forEach((dot, i) => dot.classList.toggle('active', i === currentSlide));
+    }
+    function nextSlide() { currentSlide = (currentSlide + 1) % slideCount; updateCarousel(); }
+    function startCarousel() { currentSlide = 0; updateCarousel(); interval = setInterval(nextSlide, intervalTime); }
+    function stopCarousel() { clearInterval(interval); currentSlide = 0; updateCarousel(); }
+
+    const scratchCard = Array.from(document.querySelectorAll('.scratch-card')).find(card =>
+        card.querySelector('.scratch-card-text').textContent === '摄影展'
+    );
+    if (scratchCard) {
+        const canvas = scratchCard.querySelector('.scratch-card-canvas');
+        if (canvas) canvas.addEventListener('click', () => setTimeout(startCarousel, 200));
+    }
+
+    const closeBtn = document.getElementById('photoExhibitionCloseBtn');
+    if (closeBtn) closeBtn.addEventListener('click', stopCarousel);
+    popup.addEventListener('click', (e) => { if (e.target === popup) stopCarousel(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && popup.classList.contains('active')) stopCarousel(); });
+    carouselDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            currentSlide = index;
+            updateCarousel();
+            clearInterval(interval);
+            interval = setInterval(nextSlide, intervalTime);
+        });
+    });
+}
+
+function initNewYearGalaCarousel() {
+    const popup = document.getElementById('newYearGalaPopup');
+    if (!popup) return;
+    const carouselSlides = popup.querySelector('.carousel-slides');
+    const carouselDots = popup.querySelectorAll('.carousel-dot');
+    if (!carouselSlides || carouselDots.length === 0) return;
+
+    let currentSlide = 0;
+    const slideCount = 1;
+    const intervalTime = 1000;
+    let interval = null;
+
+    function updateCarousel() {
+        const offset = -currentSlide * (100 / slideCount);
+        carouselSlides.style.transform = `translateX(${offset}%)`;
+        carouselDots.forEach((dot, i) => dot.classList.toggle('active', i === currentSlide));
+    }
+    function nextSlide() { currentSlide = (currentSlide + 1) % slideCount; updateCarousel(); }
+    function startCarousel() { currentSlide = 0; updateCarousel(); interval = setInterval(nextSlide, intervalTime); }
+    function stopCarousel() { clearInterval(interval); currentSlide = 0; updateCarousel(); }
+
+    const scratchCard = Array.from(document.querySelectorAll('.scratch-card')).find(card =>
+        card.querySelector('.scratch-card-text').textContent === '新年晚会'
+    );
+    if (scratchCard) {
+        const canvas = scratchCard.querySelector('.scratch-card-canvas');
+        if (canvas) canvas.addEventListener('click', () => setTimeout(startCarousel, 200));
+    }
+
+    const closeBtn = document.getElementById('newYearGalaCloseBtn');
+    if (closeBtn) closeBtn.addEventListener('click', stopCarousel);
+    popup.addEventListener('click', (e) => { if (e.target === popup) stopCarousel(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && popup.classList.contains('active')) stopCarousel(); });
+    carouselDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            currentSlide = index;
+            updateCarousel();
+            clearInterval(interval);
+            interval = setInterval(nextSlide, intervalTime);
+        });
+    });
+}
+
+function initMicroFilmCarousel() {
+    const popup = document.getElementById('microFilmPopup');
+    if (!popup) return;
+    const carouselSlides = popup.querySelector('.carousel-slides');
+    const carouselDots = popup.querySelectorAll('.carousel-dot');
+    if (!carouselSlides || carouselDots.length === 0) return;
+
+    let currentSlide = 0;
+    const slideCount = 2;
+    const intervalTime = 1000;
+    let interval = null;
+
+    function updateCarousel() {
+        const offset = -currentSlide * (100 / slideCount);
+        carouselSlides.style.transform = `translateX(${offset}%)`;
+        carouselDots.forEach((dot, i) => dot.classList.toggle('active', i === currentSlide));
+    }
+    function nextSlide() { currentSlide = (currentSlide + 1) % slideCount; updateCarousel(); }
+    function startCarousel() { currentSlide = 0; updateCarousel(); interval = setInterval(nextSlide, intervalTime); }
+    function stopCarousel() { clearInterval(interval); currentSlide = 0; updateCarousel(); }
+
+    const scratchCard = Array.from(document.querySelectorAll('.scratch-card')).find(card =>
+        card.querySelector('.scratch-card-text').textContent === '微电影'
+    );
+    if (scratchCard) {
+        const canvas = scratchCard.querySelector('.scratch-card-canvas');
+        if (canvas) canvas.addEventListener('click', () => setTimeout(startCarousel, 200));
+    }
+
+    const closeBtn = document.getElementById('microFilmCloseBtn');
+    if (closeBtn) closeBtn.addEventListener('click', stopCarousel);
+    popup.addEventListener('click', (e) => { if (e.target === popup) stopCarousel(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && popup.classList.contains('active')) stopCarousel(); });
+    carouselDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            currentSlide = index;
+            updateCarousel();
+            clearInterval(interval);
+            interval = setInterval(nextSlide, intervalTime);
+        });
+    });
+}

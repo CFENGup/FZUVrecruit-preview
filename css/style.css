@@ -3,7 +3,32 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+
+    /* ========== 全局禁止选中文字（修正无报错版） ========== */
+    -webkit-user-select: none;
+    /* Safari/Chrome（核心兼容） */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* IE/Edge */
+    user-select: none;
+    /* 标准属性（无报错） */
+
+    /* 仅保留webkit前缀的禁止拖动（消除报错，且覆盖主流浏览器） */
+    -webkit-user-drag: none;
 }
+
+/* 额外：针对刮刮乐区域单独加强（防止漏网） */
+.scratch-card,
+.scratch-card-canvas,
+.scratch-card-text {
+    pointer-events: auto;
+    /* 确保刮擦交互正常 */
+    user-select: none !important;
+    /* 强制禁止选中 */
+    -webkit-user-drag: none !important;
+}
+
 
 html,
 body {
@@ -367,32 +392,93 @@ body {
     cursor: pointer;
 }
 
-/* 悬挂项（核心动画） */
+/* 悬挂项（核心动画）- 移除默认动画，改为JS动态添加 */
 .hanging-item {
     display: flex;
     flex-direction: column;
     align-items: center;
     transform-origin: top center;
-    animation: swing 3s infinite ease-in-out;
     transition: all 0.3s ease;
-    /* 动画过渡 */
 }
 
-/* 不同悬挂项不同动画延迟 */
-.work-group:nth-child(1) .hanging-item {
-    animation-delay: 0s;
+/* 差异化摆动动画 */
+@keyframes swing {
+
+    0%,
+    100% {
+        transform: rotate(-3deg);
+    }
+
+    50% {
+        transform: rotate(3deg);
+    }
 }
 
-.work-group:nth-child(2) .hanging-item {
-    animation-delay: 0.5s;
+@keyframes swing-left {
+
+    0%,
+    100% {
+        transform: rotate(-5deg);
+    }
+
+    50% {
+        transform: rotate(2deg);
+    }
 }
 
-.work-group:nth-child(3) .hanging-item {
-    animation-delay: 1s;
+@keyframes swing-right {
+
+    0%,
+    100% {
+        transform: rotate(2deg);
+    }
+
+    50% {
+        transform: rotate(5deg);
+    }
 }
 
-.work-group:nth-child(4) .hanging-item {
-    animation-delay: 1.5s;
+@keyframes swing-slow {
+
+    0%,
+    100% {
+        transform: rotate(-4deg);
+    }
+
+    50% {
+        transform: rotate(4deg);
+    }
+}
+
+@keyframes swing-fast {
+
+    0%,
+    100% {
+        transform: rotate(-2deg);
+    }
+
+    50% {
+        transform: rotate(2deg);
+    }
+}
+
+/* 交互样式：停止摇晃+收缩 */
+.hanging-item.stop-swing {
+    animation: none !important;
+    transform: rotate(0deg);
+}
+
+.hanging-line.shrink {
+    height: 20px !important;
+}
+
+.hanging-icon.shrink {
+    transform: scale(0.8);
+}
+
+.group-text.shrink {
+    transform: translateY(-10px);
+    opacity: 0.5;
 }
 
 /* 悬挂线 */
@@ -401,7 +487,6 @@ body {
     height: var(--line-height);
     background-color: #666666;
     transition: height 0.5s ease;
-    /* 长度过渡 */
 }
 
 /* 悬挂图标 */
@@ -411,7 +496,6 @@ body {
     margin-top: -2px;
     object-fit: contain;
     transition: all 0.5s ease;
-    /* 缩放过渡 */
 }
 
 /* 组文本 */
@@ -423,43 +507,6 @@ body {
     text-align: center;
     width: 100%;
     transition: all 0.5s ease;
-    /* 位置/透明度过渡 */
-}
-
-/* 悬挂摇晃动画 */
-@keyframes swing {
-
-    0%,
-    100% {
-        transform: rotate(-5deg);
-    }
-
-    50% {
-        transform: rotate(5deg);
-    }
-}
-
-/* ========== 交互样式：停止摇晃+收缩 ========== */
-/* 停止摇晃 */
-.hanging-item.stop-swing {
-    animation: none;
-    transform: rotate(0deg);
-}
-
-/* 绳子收缩到20px */
-.hanging-line.shrink {
-    height: 20px !important;
-}
-
-/* 图标缩小 */
-.hanging-icon.shrink {
-    transform: scale(0.8);
-}
-
-/* 文本上移+变透明 */
-.group-text.shrink {
-    transform: translateY(-10px);
-    opacity: 0.5;
 }
 
 /* 工作页面3-6：下方区域容器 */
@@ -472,7 +519,6 @@ body {
     opacity: 0;
     visibility: hidden;
     transition: all 0.4s ease;
-    /* 水平+垂直居中 */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -483,7 +529,7 @@ body {
     visibility: visible;
 }
 
-/* 内部容器：100%宽高，顶住screen */
+/* 内部容器 */
 .bottom-inner-box {
     width: 80%;
     height: 80%;
@@ -492,6 +538,7 @@ body {
     background-color: #f4f4f4;
     display: flex;
     position: relative;
+    overflow: hidden;
 }
 
 /* 不同颜色边框 */
@@ -511,7 +558,15 @@ body {
     border-color: #9C27B0;
 }
 
-/* ========== 新增：返回按钮样式 ========== */
+/* work-page5 背景图：原比例高度占满、水平居中、溢出隐藏 */
+#work-page5 .bottom-inner-box {
+    background-image: url("../img/background/rollfilm.png");
+    background-size: auto 100%;
+    background-position: center top;
+    background-repeat: no-repeat;
+}
+
+/* 返回按钮样式 */
 .bottom-back-btn {
     padding: 12px 40px;
     font-size: 18px;
@@ -539,16 +594,304 @@ body {
     transform: scale(0.98);
 }
 
-/* ========== 摄制组页面（work-page5）背景图 ========== */
-#work-page5 .bottom-inner-box {
-    /* 引入胶卷背景图 */
-    background-image: url("../img/background/rollfilm.png");
-    /* 按原比例放大，高度占满容器，宽度自适应 */
-    background-size: auto 100%;
-    /* 水平居中，垂直对齐顶部（保证高度占满） */
-    background-position: center top;
-    /* 背景图不重复平铺 */
-    background-repeat: no-repeat;
-    /* 关键：隐藏容器外的背景图部分 */
+.scratch-card-discription h1 {
+    text-align: center;
+    font-size: 40px;
+    padding: 30px 0 0 0;
+}
+
+.scratch-card-discription p {
+    text-align: center;
+    font-size: 20px;
+    padding: 30px 0 0 0;
+}
+
+/* 刮刮乐总容器（2×2布局核心） */
+.scratch-cards-container {
+    width: 95%;
+    /* 最大化利用宽度，减少留白 */
+    max-width: 600px;
+    /* 限制最大宽度，确保2列能放下 */
+    height: 80%;
+    /* 占满screen-content高度 */
+    display: flex;
+    flex-wrap: wrap;
+    /* 自动换行，实现2×2 */
+    justify-content: space-between;
+    /* 水平间距：两端对齐 */
+    align-content: space-around;
+    /* 竖直间距：均匀分布 */
+    gap: 15px;
+    /* 兜底间距，避免挤在一起 */
+    margin: 0 auto;
+    /* 容器居中 */
+}
+
+/* 单个刮刮乐样式（缩小尺寸，适配2×2） */
+.scratch-card {
+    position: relative;
+    width: calc(50% - 10px);
+    /* 关键：50%宽度 - 一半gap，刚好一行两个 */
+    max-width: 250px;
+    /* 限制最大宽度，避免太宽 */
+    min-width: 180px;
+    /* 限制最小宽度，避免太窄 */
+    height: 120px;
+    /* 按比例缩小高度，保持视觉协调 */
+    border-radius: 10px;
     overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    flex-shrink: 1;
+    /* 允许轻微收缩，适配小屏幕 */
+}
+
+/* 底层文字样式（适配缩小后的尺寸） */
+.scratch-card-text {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(18px, 4vw, 36px);
+    /* 适配不同尺寸，自动缩放 */
+    font-weight: bold;
+    color: #FF5252;
+    background-color: #f4f4f4;
+    z-index: 0;
+    white-space: nowrap;
+    /* 防止文字换行 */
+    padding: 0 10px;
+    /* 左右留白，避免文字贴边 */
+}
+
+/* 上层画布（适配容器尺寸） */
+.scratch-card-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    z-index: 1;
+}
+
+/* 全屏弹出层背景（半透明灰色） */
+.popup-overlay {
+    position: fixed;
+    /* 固定全屏，不随滚动移动 */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    /* 半透明灰色背景 */
+    z-index: 9999;
+    /* 最高层级，确保覆盖所有元素 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    /* 默认透明（隐藏） */
+    visibility: hidden;
+    /* 默认不可见 */
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    /* 淡入淡出动画 */
+}
+
+/* 弹出层激活（显示）状态 */
+.popup-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 关闭按钮（左上角叉叉） */
+.popup-close-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #333;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.popup-close-btn:hover {
+    background-color: #fff;
+    transform: scale(1.1);
+}
+
+.popup-close-btn:active {
+    transform: scale(0.95);
+}
+
+/* 弹出层内容容器 */
+.popup-content {
+    width: 80%;
+    max-width: 600px;
+    padding: 20px 20px 30px 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+/* 弹出层内容样式（可自定义） */
+.popup-content h3 {
+    font-size: 32px;
+    color: #FF5252;
+    margin-bottom: 20px;
+}
+
+.popup-content p {
+    font-size: 18px;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* ========== 弹出层轮播样式 ========== */
+.carousel-container {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* 轮播外层（必须设relative，用于定位指示器） */
+.carousel-wrapper {
+    width: 100%;
+    height: 250px;
+    /* 轮播图高度 */
+    overflow: hidden;
+    border-radius: 8px;
+    position: relative;
+    /* 关键：让指示器绝对定位在该容器内 */
+}
+
+/* 轮播图片容器（flex+过渡） */
+.carousel-slides.photox3 {
+    display: flex;
+    width: 300%;
+    /* 3张图 → 300%宽度 */
+    height: 100%;
+    transition: transform 0.3s ease;
+    /* 切换动画 */
+}
+
+.carousel-slides.photox2 {
+    display: flex;
+    width: 200%;
+    /* 3张图 → 300%宽度 */
+    height: 100%;
+    transition: transform 0.3s ease;
+    /* 切换动画 */
+}
+
+
+
+/* 单张轮播图 */
+.carousel-slide {
+    width: 100%;
+    /* 每张占1/3 */
+    height: 100%;
+    object-fit: cover;
+    /* 保持比例，覆盖容器 */
+}
+
+/* ========== 三点式指示器核心样式 ========== */
+/* 指示器容器（绝对定位在图片最下方居中） */
+.carousel-dots {
+    position: absolute;
+    bottom: 10px;
+    /* 距离图片底部10px */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    /* 圆点之间的间距 */
+    z-index: 10;
+    /* 确保在图片上方 */
+}
+
+/* 单个圆点（默认：灰色边框+白色中间） */
+.carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    /* 圆形 */
+    border: 1px solid #999;
+    /* 灰色边框 */
+    background-color: #fff;
+    /* 白色中间 */
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* 激活的圆点（灰色实心） */
+.carousel-dot.active {
+    background-color: #666;
+    /* 灰色实心 */
+    border-color: #666;
+    /* 边框同步为实心色 */
+}
+
+/* 下部标题样式 */
+.popup-title {
+    width: 100%;
+    padding: 0px 0px 10px 0px;
+    text-align: center;
+}
+
+.popup-title p {
+    font-size: 32px;
+    color: #333;
+    line-height: 1.8;
+    margin: 0;
+}
+
+/* 下部文本样式 */
+.popup-text {
+    width: 100%;
+    padding: 0 10px;
+}
+
+.popup-text p {
+    font-size: 16px;
+    color: #333;
+    line-height: 1.8;
+    text-align: left;
+    margin: 0;
+}
+
+/* 响应式适配 */
+@media (max-width: 500px) {
+    .carousel-wrapper {
+        height: 180px;
+    }
+
+    .popup-text p {
+        font-size: 14px;
+    }
+
+    .popup-title p {
+        font-size: 28px;
+    }
+
+    .carousel-dot {
+        width: 6px;
+        height: 6px;
+    }
 }
