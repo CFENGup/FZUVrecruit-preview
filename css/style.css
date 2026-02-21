@@ -1,3 +1,4 @@
+/* 全局基础样式 */
 * {
     margin: 0;
     padding: 0;
@@ -49,6 +50,7 @@ body {
     transform: scale(0.95);
 }
 
+/* 核心容器样式 */
 .box {
     position: relative;
     width: 80%;
@@ -60,6 +62,46 @@ body {
     overflow: hidden;
 }
 
+/* 右侧竖向进度条样式 */
+.progress-bar {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 10;
+}
+
+.progress-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #999;
+    background-color: transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.progress-dot.active {
+    background-color: #666;
+    border-color: #666;
+}
+
+@media (max-width: 500px) {
+    .progress-bar {
+        right: 12px;
+        gap: 16px;
+    }
+
+    .progress-dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+/* 页面核心布局样式 */
 .screen {
     position: absolute;
     top: 0;
@@ -87,6 +129,7 @@ body {
     transform: translateY(-100%);
 }
 
+/* 页面内容区域样式 */
 .screen-content {
     flex: 1;
     display: flex;
@@ -96,28 +139,22 @@ body {
     color: #000000;
 }
 
-/* ========== 精确计算的最大值 ========== */
-/* 大框最大宽700px → 箭头最大宽=700×10%=70px → 箭头最大高=70×0.3=21px */
-
-/* 箭头占位符（用于首尾页保持布局一致） */
+/* 箭头占位符样式 */
 .arrow-placeholder {
     width: 10%;
     height: 3%;
-    /* 占位符高度=宽度×0.3 */
     max-width: 70px;
     max-height: 21px;
 }
 
-/* ========== 核心修改：高度为宽度的0.3倍，直接拉伸 ========== */
+/* 箭头样式 */
 .arrow {
     width: 10%;
     height: 3%;
-    /* 高度=宽度×0.3（依赖宽度，宽度依赖大框） */
     max-width: 70px;
     max-height: 21px;
     cursor: pointer;
     object-fit: fill;
-    /* 强制直接拉伸，不保持原始比例 */
     user-select: none;
     transition: transform 0.2s ease;
 }
@@ -126,7 +163,6 @@ body {
     transform: scale(1.1);
 }
 
-/* 简单的上下弹跳动画 */
 .arrow-up {
     animation: bounceUp 2s infinite ease-in-out;
 }
@@ -135,6 +171,7 @@ body {
     animation: bounceDown 2s infinite ease-in-out;
 }
 
+/* 箭头弹跳动画 */
 @keyframes bounceUp {
 
     0%,
@@ -159,7 +196,7 @@ body {
     }
 }
 
-/* 主页样式 */
+/* 主页专属样式 */
 #screen-home h1 {
     font-size: 64px;
     color: #000000;
@@ -189,8 +226,329 @@ body {
     transform: scale(0.98);
 }
 
-/* 内容页样式 */
+/* 内容页专属样式 */
 .screen h2 {
     font-size: 48px;
     color: #000000;
+}
+
+/* 工作页面专属样式 */
+#screen-work {
+    position: relative;
+}
+
+.work-pages-wrapper {
+    flex: 1;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    padding: 15px;
+}
+
+/* 工作页面1：首页 */
+#work-page1 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+    padding: 15px;
+}
+
+#work-page1.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.work-main-title {
+    font-size: 56px;
+    color: #000000;
+    margin: 0 0 10px 0;
+    letter-spacing: 2px;
+}
+
+.work-sub-title {
+    font-size: 20px;
+    color: #666666;
+    margin: 0 0 50px 0;
+    letter-spacing: 1px;
+}
+
+.work-start-btn {
+    padding: 15px 60px;
+    font-size: 24px;
+    font-weight: 500;
+    color: #ffffff;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+    animation: btnBreath 2s infinite ease-in-out;
+    transition: transform 0.2s ease;
+}
+
+.work-start-btn:hover {
+    transform: scale(1.05);
+    animation-play-state: paused;
+}
+
+.work-start-btn:active {
+    transform: scale(0.98);
+}
+
+/* 开始按钮呼吸动画 */
+@keyframes btnBreath {
+
+    0%,
+    100% {
+        background-color: #4CAF50;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+    }
+
+    50% {
+        background-color: #66BB6A;
+        box-shadow: 0 6px 20px rgba(102, 187, 106, 0.6);
+    }
+}
+
+/* 工作页面2：上方页面 */
+.work-top-page {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    height: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+}
+
+.work-top-page.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 天花板 */
+.work-ceiling {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #333333;
+}
+
+/* 悬挂图标容器 */
+.work-hanging-container {
+    position: absolute;
+    top: 3px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 3px);
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding: 0 20px;
+}
+
+/* 单个图标+文本组 */
+.work-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* 悬挂项（核心动画） */
+.hanging-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform-origin: top center;
+    animation: swing 3s infinite ease-in-out;
+    transition: all 0.3s ease;
+    /* 动画过渡 */
+}
+
+/* 不同悬挂项不同动画延迟 */
+.work-group:nth-child(1) .hanging-item {
+    animation-delay: 0s;
+}
+
+.work-group:nth-child(2) .hanging-item {
+    animation-delay: 0.5s;
+}
+
+.work-group:nth-child(3) .hanging-item {
+    animation-delay: 1s;
+}
+
+.work-group:nth-child(4) .hanging-item {
+    animation-delay: 1.5s;
+}
+
+/* 悬挂线 */
+.hanging-line {
+    width: 2px;
+    height: var(--line-height);
+    background-color: #666666;
+    transition: height 0.5s ease;
+    /* 长度过渡 */
+}
+
+/* 悬挂图标 */
+.hanging-icon {
+    width: 50px;
+    height: 50px;
+    margin-top: -2px;
+    object-fit: contain;
+    transition: all 0.5s ease;
+    /* 缩放过渡 */
+}
+
+/* 组文本 */
+.group-text {
+    margin-top: 15px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333333;
+    text-align: center;
+    width: 100%;
+    transition: all 0.5s ease;
+    /* 位置/透明度过渡 */
+}
+
+/* 悬挂摇晃动画 */
+@keyframes swing {
+
+    0%,
+    100% {
+        transform: rotate(-5deg);
+    }
+
+    50% {
+        transform: rotate(5deg);
+    }
+}
+
+/* ========== 交互样式：停止摇晃+收缩 ========== */
+/* 停止摇晃 */
+.hanging-item.stop-swing {
+    animation: none;
+    transform: rotate(0deg);
+}
+
+/* 绳子收缩到20px */
+.hanging-line.shrink {
+    height: 20px !important;
+}
+
+/* 图标缩小 */
+.hanging-icon.shrink {
+    transform: scale(0.8);
+}
+
+/* 文本上移+变透明 */
+.group-text.shrink {
+    transform: translateY(-10px);
+    opacity: 0.5;
+}
+
+/* 工作页面3-6：下方区域容器 */
+.work-bottom-page {
+    position: absolute;
+    top: 200px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+    /* 水平+垂直居中 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.work-bottom-page.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 内部容器：100%宽高，顶住screen */
+.bottom-inner-box {
+    width: 80%;
+    height: 80%;
+    border-width: 5px;
+    border-style: solid;
+    background-color: #f4f4f4;
+    display: flex;
+    position: relative;
+}
+
+/* 不同颜色边框 */
+.red-border {
+    border-color: #FF5252;
+}
+
+.blue-border {
+    border-color: #2196F3;
+}
+
+.green-border {
+    border-color: #4CAF50;
+}
+
+.purple-border {
+    border-color: #9C27B0;
+}
+
+/* ========== 新增：返回按钮样式 ========== */
+.bottom-back-btn {
+    padding: 12px 40px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #ffffff;
+    background-color: #666;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    height: 50px;
+    width: 120px;
+    transition: all 0.2s ease;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}
+
+.bottom-back-btn:hover {
+    transform: scale(1.05);
+    background-color: #444;
+}
+
+.bottom-back-btn:active {
+    transform: scale(0.98);
+}
+
+/* ========== 摄制组页面（work-page5）背景图 ========== */
+#work-page5 .bottom-inner-box {
+    /* 引入胶卷背景图 */
+    background-image: url("../img/background/rollfilm.png");
+    /* 按原比例放大，高度占满容器，宽度自适应 */
+    background-size: auto 100%;
+    /* 水平居中，垂直对齐顶部（保证高度占满） */
+    background-position: center top;
+    /* 背景图不重复平铺 */
+    background-repeat: no-repeat;
+    /* 关键：隐藏容器外的背景图部分 */
+    overflow: hidden;
 }

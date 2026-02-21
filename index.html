@@ -14,6 +14,15 @@
         <button class="audio-btn" id="audioBtn">🔇</button>
 
         <div class="box">
+            <!-- 右侧竖向进度条 -->
+            <div class="progress-bar">
+                <div class="progress-dot active" data-index="0"></div>
+                <div class="progress-dot" data-index="1"></div>
+                <div class="progress-dot" data-index="2"></div>
+                <div class="progress-dot" data-index="3"></div>
+                <div class="progress-dot" data-index="4"></div>
+            </div>
+
             <!-- 主页（无向上箭头） -->
             <div class="screen active" id="screen-home">
                 <div class="arrow-placeholder"></div>
@@ -32,9 +41,90 @@
             <!-- 工作页面 -->
             <div class="screen" id="screen-work">
                 <img class="arrow arrow-up" src="./img/icon/uparrow.png" alt="上一页">
-                <div class="screen-content">
-                    <h2>工作</h2>
+
+                <div class="work-pages-wrapper">
+                    <!-- 工作页面1：首页 -->
+                    <div class="work-page active" id="work-page1">
+                        <h2 class="work-main-title">社团事务所</h2>
+                        <p class="work-sub-title">——了解每一份努力</p>
+                        <button class="work-start-btn" id="workStartBtn">开始</button>
+                    </div>
+
+                    <!-- 工作页面2：主页面（上方） -->
+                    <div class="work-page work-top-page" id="work-page2">
+                        <!-- 天花板 -->
+                        <div class="work-ceiling"></div>
+
+                        <!-- 悬挂图标容器 -->
+                        <div class="work-hanging-container">
+                            <!-- 第1组：照片组 -->
+                            <div class="work-group" data-page="3">
+                                <div class="hanging-item" style="--line-height: 80px;">
+                                    <div class="hanging-line"></div>
+                                    <img class="hanging-icon" src="./img/icon/camera.png" alt="相机">
+                                </div>
+                                <div class="group-text">照片组</div>
+                            </div>
+
+                            <!-- 第2组：策划组 -->
+                            <div class="work-group" data-page="4">
+                                <div class="hanging-item" style="--line-height: 40px;">
+                                    <div class="hanging-line"></div>
+                                    <img class="hanging-icon" src="./img/icon/write.png" alt="文案">
+                                </div>
+                                <div class="group-text">策划组</div>
+                            </div>
+
+                            <!-- 第3组：摄制组 -->
+                            <div class="work-group" data-page="5">
+                                <div class="hanging-item" style="--line-height: 120px;">
+                                    <div class="hanging-line"></div>
+                                    <img class="hanging-icon" src="./img/icon/telecamera.png" alt="摄像机">
+                                </div>
+                                <div class="group-text">摄制组</div>
+                            </div>
+
+                            <!-- 第4组：综管出镜组 -->
+                            <div class="work-group" data-page="6">
+                                <div class="hanging-item" style="--line-height: 60px;">
+                                    <div class="hanging-line"></div>
+                                    <img class="hanging-icon" src="./img/icon/journalist.png" alt="记者">
+                                </div>
+                                <div class="group-text">综管出镜组</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 工作页面3：照片组页面 -->
+                    <div class="work-page work-bottom-page" id="work-page3">
+                        <div class="bottom-inner-box red-border">
+                            <!-- 新增bottom按钮 -->
+                            <button class="bottom-back-btn">返回</button>
+                        </div>
+                    </div>
+
+                    <!-- 工作页面4：策划组页面 -->
+                    <div class="work-page work-bottom-page" id="work-page4">
+                        <div class="bottom-inner-box blue-border">
+                            <button class="bottom-back-btn">返回</button>
+                        </div>
+                    </div>
+
+                    <!-- 工作页面5：摄制组页面 -->
+                    <div class="work-page work-bottom-page" id="work-page5">
+                        <div class="bottom-inner-box green-border">
+                            <button class="bottom-back-btn">返回</button>
+                        </div>
+                    </div>
+
+                    <!-- 工作页面6：综管出镜组页面 -->
+                    <div class="work-page work-bottom-page" id="work-page6">
+                        <div class="bottom-inner-box purple-border">
+                            <button class="bottom-back-btn">返回</button>
+                        </div>
+                    </div>
                 </div>
+
                 <img class="arrow arrow-down" src="./img/icon/downarrow.png" alt="下一页">
             </div>
 
@@ -67,8 +157,8 @@
         </div>
     </div>
 
-    <audio id="bgMusic" src="./music/testmusic.mp3" loop>
-        <script src="./js/script.js"></script>
+    <audio id="bgMusic" src="./music/testmusic.mp3" loop></audio>
+    <script src="./js/script.js"></script>
 </body>
 
 </html>
