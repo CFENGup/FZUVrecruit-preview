@@ -1,5 +1,6 @@
-alert("v0.22202 preview only    最后发布时间2.22 02:16    刮刮乐电脑没问题，手机没适配好。最佳预览比例为竖屏16:10，其他比例布局没调好。");
+alert("v0.22202 preview only    最后发布时间2.22 02:16    刮刮乐电脑没问题，手机暂时点不开链接弹窗。最佳预览比例为竖屏16:10 2560px:1600px，其他比例布局没调好。");
 console.log("v0.22202 only preview   最后发布时间2.22 02:16");
+
 // ==================== 全局禁止文字选中/拖动（防蓝框） ====================
 document.addEventListener('selectstart', (e) => e.preventDefault());
 document.addEventListener('dragstart', (e) => e.preventDefault());
